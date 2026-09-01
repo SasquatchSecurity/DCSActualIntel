@@ -19,9 +19,6 @@ dependencies = [
     "pydcs @ git+https://github.com/pydcs/dcs.git@075949ea280f02fd63ec20187ff76747aae7d4e9",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest>=8"]
-
 [project.scripts]
 dcsintel = "dcsintel.cli:main"
 
@@ -30,6 +27,3 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 dcsintel = ["data/*.json"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]

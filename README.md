@@ -283,9 +283,6 @@ src/dcsintel/
   data/catalog.json             Unit catalogs: SAM site templates, aircraft
                                 by era/role, ground units
   data/modules.json             Mods/aircraft folder -> flyable module ids
-tests/                          pytest suite (detection, validation, and a
-                                build-save-reload golden path per type)
-docs/superpowers/specs/         Design documents
 ```
 
 ### Adding a mission type
@@ -296,22 +293,13 @@ docs/superpowers/specs/         Design documents
 2. Register it in `missions/__init__.py::BUILDERS` and add the name to
    `spec.py::MISSION_TYPES`.
 3. Write `skills/dcs-mission-generator/mission-types/<name>.md`.
-4. The parametrized test in `tests/test_generate.py` picks it up automatically.
+4. Verify with `dcsintel generate --type <name> --no-ownership-check` followed
+   by `dcsintel validate` on the output.
 
 ### Adding units, SAMs, or modules
 
 Edit the JSON in `src/dcsintel/data/` - no code changes needed. Unit strings
 are exact DCS type names (pydcs `plane_map` / `vehicle_map` keys).
-
-## Testing
-
-```bash
-pip install -e ".[dev]"
-pytest
-```
-
-The suite builds, saves, and *reloads* a mission of every type, so a pydcs
-API drift or bad unit name fails loudly in CI rather than silently in DCS.
 
 ## Troubleshooting
 
@@ -344,14 +332,13 @@ Issues and PRs welcome. The lowest-friction contributions are pure data:
 new module folder mappings in `data/modules.json` (paste your
 `unknown_module_folders` output) and new units or SAM templates in
 `data/catalog.json`. For new mission types, see
-[Adding a mission type](#adding-a-mission-type) - the test suite picks new
-types up automatically. Please run `pytest` before opening a PR.
+[Adding a mission type](#adding-a-mission-type).
 
 **Privacy standard:** no committed file may contain personal or
 environment-identifying details (real user-profile paths, hostnames, install
 paths from your machine). Use placeholders like `C:/Users/you/...` in docs -
-`tests/test_no_pii.py` enforces this, and command output pasted into
-documentation is the most common way leaks happen, so scrub it first.
+command output pasted into documentation is the most common way leaks happen,
+so scrub it first.
 
 ## License
 
