@@ -16,7 +16,7 @@ the repo this skill ships in (requires Python 3.10+):
 
 ```bash
 pip install <path-to-DCSActualIntel-repo>
-# or: pip install git+https://github.com/<owner>/DCSActualIntel.git
+# or: pip install git+https://github.com/SasquatchSecurity/DCSActualIntel.git
 ```
 
 ## Workflow

@@ -56,7 +56,7 @@ is never asked to be creative.
 Requires **Python 3.10+** (3.13 works - see [Troubleshooting](#troubleshooting)).
 
 ```bash
-git clone https://github.com/<owner>/DCSActualIntel.git
+git clone https://github.com/SasquatchSecurity/DCSActualIntel.git
 cd DCSActualIntel
 pip install .
 ```
