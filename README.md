@@ -1,5 +1,13 @@
 # DCSActualIntel
 
+![An F-16 dissolving into glowing neural-network wireframe over a holographic terrain grid - AI designs the mission, deterministic code renders it](docs/assets/hero.jpg)
+
+*The picture is the architecture: a real, solid airframe up front - the
+deterministic pydcs builder that guarantees every `.miz` is valid - dissolving
+into neural wireframe aft, the AI layer that dreams up the scenario, over a
+terrain grid of the data catalogs underneath. (Derived from a public-domain
+U.S. Air Force photo of the first F-16 Block 70, 412th Test Wing, Edwards AFB.)*
+
 **AI-driven random mission generator for DCS World.**
 
 Ask your AI coding agent (Cursor, Claude Code, GitHub Copilot, or anything
