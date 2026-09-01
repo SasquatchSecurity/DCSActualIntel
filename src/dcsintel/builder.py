@@ -127,6 +127,16 @@ def set_group_skill(group, skill_name: str) -> None:
         unit.skill = skill
 
 
+def set_alarm_red(group) -> None:
+    """Force a ground group to Alarm State RED so search/track radars emit.
+
+    DCS defaults to Auto, which leaves legacy SAMs (SA-2/SA-3) silent until
+  the player is nearly inside the engagement zone - invisible to HTS at
+    standoff. SEAD targets must be emitting from mission start.
+    """
+    group.points[0].tasks.append(dcs.task.OptAlarmState("Red"))
+
+
 # --------------------------------------------------------------------------
 # Spawn helpers used by mission-type builders
 # --------------------------------------------------------------------------
@@ -164,6 +174,7 @@ def spawn_sam_site(ctx: BuildContext, sam_key: str, center: Point, name: str):
     for i, type_id in enumerate(template["center"]):
         pos = center.point_from_heading(ctx.rng.uniform(0, 360), 60 + 40 * i)
         g = ctx.mission.vehicle_group(ctx.red, f"{name} {type_id}", vehicle_class(type_id), pos)
+        set_alarm_red(g)
         groups.append(g)
         vg = g
     ring = template["ring"]
@@ -174,6 +185,7 @@ def spawn_sam_site(ctx: BuildContext, sam_key: str, center: Point, name: str):
             ctx.red, f"{name} LN {i + 1}", vehicle_class(ring["type"]), pos,
             heading=(heading_deg + 180) % 360,
         )
+        set_alarm_red(g)
         groups.append(g)
     return groups
 
