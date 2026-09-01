@@ -339,6 +339,12 @@ new module folder mappings in `data/modules.json` (paste your
 [Adding a mission type](#adding-a-mission-type) - the test suite picks new
 types up automatically. Please run `pytest` before opening a PR.
 
+**Privacy standard:** no committed file may contain personal or
+environment-identifying details (real user-profile paths, hostnames, install
+paths from your machine). Use placeholders like `C:/Users/you/...` in docs -
+`tests/test_no_pii.py` enforces this, and command output pasted into
+documentation is the most common way leaks happen, so scrub it first.
+
 ## License
 
 MIT - see [LICENSE](LICENSE).
