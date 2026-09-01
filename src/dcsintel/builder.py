@@ -437,6 +437,10 @@ def build_mission(spec: dict, out_path: Optional[str] = None) -> Path:
     ``spec`` must already have passed :func:`dcsintel.spec.normalize`.
     Returns the path of the saved ``.miz``.
     """
+    if spec["type"] == "sead_training":
+        from .missions.sead_training import build_training
+        return Path(build_training(spec, out_path))
+
     from . import missions  # deferred: missions imports helpers from this module
 
     terrain_cls = TERRAIN_CLASSES.get(spec["terrain"])
