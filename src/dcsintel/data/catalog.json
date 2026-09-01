@@ -1,0 +1,91 @@
+{
+  "_comment": "Unit catalogs keyed by era. All strings are exact DCS type names (pydcs plane_map / vehicle_map keys). Add units here, never in code. SAM templates: 'center' units are placed at the site center, 'ring' units evenly spaced on a circle of ring_radius_m.",
+
+  "eras": {
+    "modern": { "year": 2016 },
+    "coldwar": { "year": 1979 }
+  },
+
+  "red_fighters": {
+    "modern": ["Su-27", "MiG-29S", "MiG-31", "J-11A", "Su-30"],
+    "coldwar": ["MiG-21Bis", "MiG-23MLD", "MiG-19P"]
+  },
+
+  "red_strikers": {
+    "modern": ["Su-24M", "Su-34", "Su-25"],
+    "coldwar": ["Su-17M4", "MiG-27K", "Su-24M"]
+  },
+
+  "red_bombers": {
+    "modern": ["Tu-22M3", "Tu-95MS"],
+    "coldwar": ["Tu-22M3", "Tu-95MS"]
+  },
+
+  "blue_bombers": {
+    "modern": ["B-1B", "B-52H"],
+    "coldwar": ["B-52H"]
+  },
+
+  "blue_awacs": { "modern": "E-3A", "coldwar": "E-3A" },
+  "blue_tanker": { "modern": "KC-135", "coldwar": "KC-135" },
+
+  "sam_by_era": {
+    "modern": ["SA-6", "SA-8", "SA-10", "SA-11", "SA-15", "SA-19", "AAA"],
+    "coldwar": ["SA-2", "SA-3", "SA-6", "AAA"]
+  },
+
+  "sam_templates": {
+    "SA-2": {
+      "center": ["SNR_75V", "p-19 s-125 sr"],
+      "ring": { "type": "S_75M_Volhov", "count": 6, "ring_radius_m": 500 },
+      "threat_ring_nm": 23
+    },
+    "SA-3": {
+      "center": ["snr s-125 tr", "p-19 s-125 sr"],
+      "ring": { "type": "5p73 s-125 ln", "count": 4, "ring_radius_m": 400 },
+      "threat_ring_nm": 13
+    },
+    "SA-6": {
+      "center": ["Kub 1S91 str"],
+      "ring": { "type": "Kub 2P25 ln", "count": 4, "ring_radius_m": 400 },
+      "threat_ring_nm": 13
+    },
+    "SA-8": {
+      "center": [],
+      "ring": { "type": "Osa 9A33 ln", "count": 2, "ring_radius_m": 300 },
+      "threat_ring_nm": 5
+    },
+    "SA-10": {
+      "center": ["S-300PS 54K6 cp", "S-300PS 40B6M tr", "S-300PS 40B6MD sr", "S-300PS 64H6E sr"],
+      "ring": { "type": "S-300PS 5P85C ln", "count": 4, "ring_radius_m": 600 },
+      "threat_ring_nm": 40
+    },
+    "SA-11": {
+      "center": ["SA-11 Buk CC 9S470M1", "SA-11 Buk SR 9S18M1"],
+      "ring": { "type": "SA-11 Buk LN 9A310M1", "count": 4, "ring_radius_m": 450 },
+      "threat_ring_nm": 15
+    },
+    "SA-15": {
+      "center": [],
+      "ring": { "type": "Tor 9A331", "count": 2, "ring_radius_m": 300 },
+      "threat_ring_nm": 6
+    },
+    "SA-19": {
+      "center": [],
+      "ring": { "type": "2S6 Tunguska", "count": 2, "ring_radius_m": 250 },
+      "threat_ring_nm": 4
+    },
+    "AAA": {
+      "center": [],
+      "ring": { "type": "ZSU-23-4 Shilka", "count": 3, "ring_radius_m": 250 },
+      "threat_ring_nm": 1.3
+    }
+  },
+
+  "ewr": ["1L13 EWR", "55G6 EWR"],
+
+  "red_armor": ["T-72B", "BMP-2", "BTR-80"],
+  "red_soft": ["Ural-375", "Ural-375 ZU-23"],
+  "red_shorad": ["ZSU-23-4 Shilka", "Osa 9A33 ln"],
+  "blue_armor": ["M-1 Abrams", "M-2 Bradley"]
+}

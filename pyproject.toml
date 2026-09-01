@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcsintel"
+version = "0.1.0"
+description = "AI-driven random mission generator for DCS World (SEAD, CAP, Dogfight, Strike, Escort, CAS, Intercept)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "DCSActualIntel contributors" }]
+keywords = ["dcs", "dcs-world", "mission-generator", "flight-sim", "miz"]
+
+dependencies = [
+    # PyPI pydcs 0.15.0 crashes on import under Python 3.13 (PEP 667 changed
+    # exec()/locals() semantics, breaking its livery scanner). Master has a
+    # rewritten scanner, so we pin a known-good commit.
+    "pydcs @ git+https://github.com/pydcs/dcs.git@075949ea280f02fd63ec20187ff76747aae7d4e9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+dcsintel = "dcsintel.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+dcsintel = ["data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
