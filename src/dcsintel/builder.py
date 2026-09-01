@@ -127,16 +127,6 @@ def set_group_skill(group, skill_name: str) -> None:
         unit.skill = skill
 
 
-def set_alarm_red(group) -> None:
-    """Force a ground group to Alarm State RED so search/track radars emit.
-
-    DCS defaults to Auto, which leaves legacy SAMs (SA-2/SA-3) silent until
-  the player is nearly inside the engagement zone - invisible to HTS at
-    standoff. SEAD targets must be emitting from mission start.
-    """
-    group.points[0].tasks.append(dcs.task.OptAlarmState("Red"))
-
-
 # --------------------------------------------------------------------------
 # Spawn helpers used by mission-type builders
 # --------------------------------------------------------------------------
@@ -163,31 +153,40 @@ def spawn_red_flight(
 
 
 def spawn_sam_site(ctx: BuildContext, sam_key: str, center: Point, name: str):
-    """Place one SAM site from the catalog template around ``center``.
+    """Place one SAM battery as a single vehicle group.
 
-    Center units stack near the middle; launchers sit on an evenly-spaced
-    ring so the site looks (and shoots) like the real thing.
+    DCS requires every component of a SAM site (search radar, track radar,
+    launchers) to live in the *same* group or the battery cannot engage.
+    Each component is still placed on the ring layout, but they share one
+    group so AI can link radar to launchers under standard alarm rules.
     """
     template = ctx.catalog["sam_templates"][sam_key]
-    groups = []
-    vg = None
+    placements: list[tuple[str, Point, float]] = []
+
     for i, type_id in enumerate(template["center"]):
         pos = center.point_from_heading(ctx.rng.uniform(0, 360), 60 + 40 * i)
-        g = ctx.mission.vehicle_group(ctx.red, f"{name} {type_id}", vehicle_class(type_id), pos)
-        set_alarm_red(g)
-        groups.append(g)
-        vg = g
+        placements.append((type_id, pos, 0.0))
+
     ring = template["ring"]
     for i in range(ring["count"]):
         heading_deg = 360 / ring["count"] * i
         pos = center.point_from_heading(heading_deg, ring["ring_radius_m"])
-        g = ctx.mission.vehicle_group(
-            ctx.red, f"{name} LN {i + 1}", vehicle_class(ring["type"]), pos,
-            heading=(heading_deg + 180) % 360,
-        )
-        set_alarm_red(g)
-        groups.append(g)
-    return groups
+        placements.append((ring["type"], pos, float((heading_deg + 180) % 360)))
+
+    vehicles = []
+    for i, (type_id, pos, hdg) in enumerate(placements):
+        v = ctx.mission.vehicle(f"{name} Unit #{i + 1}", vehicle_class(type_id))
+        v.position = pos
+        v.heading = hdg
+        vehicles.append(v)
+
+    group = ctx.mission.vehicle_group_from_vehicles(ctx.red, name, vehicles, center)
+    # pydcs runs a formation pass that stacks units; restore our layout.
+    for unit, (_, pos, hdg) in zip(group.units, placements):
+        unit.position = pos
+        unit.heading = hdg
+
+    return [group]
 
 
 def spawn_vehicle_cluster(ctx: BuildContext, country, name: str, type_ids: list,

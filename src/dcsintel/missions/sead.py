@@ -7,7 +7,7 @@ red CAP. The briefing lists the expected threats - actual intel.
 
 import dcs.task
 
-from ..builder import NM, FT, BuildContext, add_red_cap, set_alarm_red, spawn_sam_site, vehicle_class
+from ..builder import NM, FT, BuildContext, add_red_cap, spawn_sam_site, vehicle_class
 
 
 PLAYER_TASK = dcs.task.SEAD
@@ -23,10 +23,9 @@ def build(ctx: BuildContext) -> None:
 
     ewr_types = ctx.catalog["ewr"]
     ewr_pos = ctx.objective.point_from_heading(ctx.heading, 15 * NM)
-    ewr = ctx.mission.vehicle_group(
+    ctx.mission.vehicle_group(
         ctx.red, "EWR Site", vehicle_class(ewr_types[rng.randrange(len(ewr_types))]), ewr_pos,
     )
-    set_alarm_red(ewr)
 
     add_red_cap(ctx, spec["enemy"]["cap_flights"], ctx.red_airport.position)
 

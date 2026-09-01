@@ -36,12 +36,12 @@
 
   "sam_templates": {
     "SA-2": {
-      "center": ["SNR_75V", "p-19 s-125 sr"],
-      "ring": { "type": "S_75M_Volhov", "count": 6, "ring_radius_m": 500 },
+      "center": ["p-19 s-125 sr", "SNR_75V"],
+      "ring": { "type": "S_75M_Volhov", "count": 4, "ring_radius_m": 500 },
       "threat_ring_nm": 23
     },
     "SA-3": {
-      "center": ["snr s-125 tr", "p-19 s-125 sr"],
+      "center": ["p-19 s-125 sr", "snr s-125 tr"],
       "ring": { "type": "5p73 s-125 ln", "count": 4, "ring_radius_m": 400 },
       "threat_ring_nm": 13
     },
