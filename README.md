@@ -53,7 +53,12 @@ is never asked to be creative.
 
 ## Installation
 
-Requires **Python 3.10+** (3.13 works - see [Troubleshooting](#troubleshooting)).
+Requires **Python 3.10+** (3.13 works - see [Troubleshooting](#troubleshooting))
+and Git. A DCS World install on the same machine is recommended (for module
+auto-detection) but not required - see
+[Module & terrain detection](#module--terrain-detection).
+
+### Full install (recommended: CLI + agent skill)
 
 ```bash
 git clone https://github.com/SasquatchSecurity/DCSActualIntel.git
@@ -61,11 +66,16 @@ cd DCSActualIntel
 pip install .
 ```
 
+> Prefer isolation? Create a venv first (`python -m venv .venv` then
+> `.venv\Scripts\activate` on Windows / `source .venv/bin/activate`
+> elsewhere) and run the same `pip install .` inside it.
+
 Then install the agent skill into your harness(es):
 
 ```bash
 python scripts/install_skills.py                    # all harnesses, user-wide
 python scripts/install_skills.py --harness cursor   # just Cursor
+python scripts/install_skills.py --harness claude   # just Claude Code
 python scripts/install_skills.py --scope project    # commit into a repo instead
 ```
 
@@ -76,6 +86,31 @@ python scripts/install_skills.py --scope project    # commit into a repo instead
 | GitHub Copilot | - | `.github/skills/` |
 
 Restart your agent session afterward, then just ask for a mission.
+
+To update later: `git pull`, `pip install .`, and rerun
+`scripts/install_skills.py` (it overwrites the installed skill copy).
+
+### CLI-only install (no clone, no agent skill)
+
+If you just want the `dcsintel` command:
+
+```bash
+pip install git+https://github.com/SasquatchSecurity/DCSActualIntel.git
+```
+
+## Using it with your AI agent
+
+Once the skill is installed, talk to your agent in plain English:
+
+> *"Generate a random SEAD mission for my F-16."*
+> *"Make me a cold-war dogfight, guns only vibes, something close-in."*
+> *"I have 30 minutes - quick intercept scramble, surprise me on everything else."*
+
+The agent will detect your modules, read the doctrine doc for that mission
+type, write a MissionSpec (including a hand-written briefing), generate the
+`.miz` into `Saved Games/DCS/Missions/`, validate it, and hand you the path
+plus the tasking summary. Repeat a mission you liked by giving the agent the
+seed it reported.
 
 ## Using the CLI directly (no AI required)
 
@@ -98,7 +133,44 @@ dcsintel validate "C:/Users/you/Saved Games/DCS/Missions/sead_Syria_42.miz"
 
 All commands print JSON (designed to be equally readable by humans and
 agents). Missions land in `Saved Games/DCS/Missions/` unless `--out` says
-otherwise.
+otherwise. On failure you get exit code 1 and `{"error": "..."}` with an
+actionable message.
+
+### CLI reference
+
+`dcsintel detect`
+
+| Flag | Meaning |
+|---|---|
+| `--refresh` | Ignore the cache (`~/.dcsintel/detected.json`) and rescan |
+
+`dcsintel generate` (requires `--spec` or `--type`)
+
+| Flag | Meaning |
+|---|---|
+| `--spec FILE` | MissionSpec JSON file (full creative control) |
+| `--type TYPE` | Mission type; everything else randomized |
+| `--terrain NAME` | Override terrain (e.g. `Syria`) |
+| `--aircraft ID` | Override player aircraft (e.g. `F-16C_50`) |
+| `--seed N` | Reproducible randomness; same spec+seed = identical .miz |
+| `--out PATH` | Output path (default: `Saved Games/DCS/Missions/`) |
+| `--no-ownership-check` | Skip module/terrain ownership validation |
+
+CLI flags override the same fields in `--spec`, so you can keep a favorite
+spec file and vary just the seed or aircraft per run.
+
+`dcsintel validate MISSION.miz` - reloads the file with pydcs and reports:
+
+```json
+{
+  "path": "intercept_Caucasus_2026.miz",
+  "terrain": "Caucasus",
+  "player_aircraft": "F-15C",
+  "start_time": "1979-05-11 19:00:00",
+  "red_units": 4,
+  "load_messages": []
+}
+```
 
 ### MissionSpec reference
 
@@ -152,7 +224,24 @@ so an agent can self-correct without you touching anything.
 registry (standalone stable/openbeta and Steam), and standard filesystem
 locations. It then reads `Mods/aircraft/` and `Mods/terrains/` to determine
 what you own. `Su-25T` and `TF-51D` are always included (free with the base
-game).
+game). Typical output:
+
+```json
+{
+  "dcs_install": "C:\\Program Files\\Eagle Dynamics\\DCS World",
+  "saved_games": "C:\\Users\\you\\Saved Games\\DCS",
+  "modules": ["A-10C_2", "F-15C", "F-16C_50", "FA-18C_hornet", "Su-25T", "TF-51D"],
+  "terrains": ["Caucasus", "Nevada", "Syria"],
+  "unknown_module_folders": [],
+  "source": "scan"
+}
+```
+
+Supported terrains: Caucasus, Nevada, Normandy, Persian Gulf, Syria,
+Mariana Islands, Falklands (South Atlantic), Sinai, Kola, Germany (Cold War),
+The Channel. Detection is Windows-only (DCS is Windows-only), but mission
+*generation* runs anywhere via the config-file fallback below - handy for
+building missions on a laptop or in CI.
 
 No DCS install on this machine? Create `dcsintel.config.json` next to where
 you run the tool (or at `~/.dcsintel/config.json`):
@@ -240,6 +329,15 @@ defaults assume fixed-wing transit speeds.
 - Multiplayer client slot layouts
 - Kneeboard generation with the threat picture
 - WW2 era catalog
+
+## Contributing
+
+Issues and PRs welcome. The lowest-friction contributions are pure data:
+new module folder mappings in `data/modules.json` (paste your
+`unknown_module_folders` output) and new units or SAM templates in
+`data/catalog.json`. For new mission types, see
+[Adding a mission type](#adding-a-mission-type) - the test suite picks new
+types up automatically. Please run `pytest` before opening a PR.
 
 ## License
 
