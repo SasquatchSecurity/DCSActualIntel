@@ -255,11 +255,18 @@ def _pick_airbase_pair(terrain, spec: dict, rng: random.Random):
 
     If the player named an airbase, honor it. Otherwise search random
     pairs inside a widening distance window so every terrain works.
+
+    Among valid pairs, strongly prefer those whose midpoint is close to
+    the terrain's default map view center: that's where the Mission
+    Editor opens, and where map detail is richest. Without this bias a
+    pair at the far map edge is a valid but miserable pick - the user
+    opens the ME and sees nothing (all content off-screen).
     """
     airports = [a for a in terrain.airports.values() if a.runways]
     if len(airports) < 2:
         raise SpecError(f"terrain {spec['terrain']!r} has fewer than 2 usable airports")
 
+    map_center = terrain.map_view_default.position
     wanted = spec["distance_nm"] * NM
     requested = spec["player"].get("airbase")
     blue_candidates = airports
@@ -280,7 +287,17 @@ def _pick_airbase_pair(terrain, spec: dict, rng: random.Random):
             if r is not b and lo <= b.position.distance_to_point(r.position) <= hi
         ]
         if pairs:
-            best = pairs[rng.randrange(len(pairs))]
+            # Rank by midpoint distance to the map center, then pick randomly
+            # among the best few to keep seed-driven variety.
+            pairs.sort(
+                key=lambda pair: Point(
+                    (pair[0].position.x + pair[1].position.x) / 2,
+                    (pair[0].position.y + pair[1].position.y) / 2,
+                    terrain,
+                ).distance_to_point(map_center)
+            )
+            shortlist = pairs[:max(1, min(len(pairs) // 4, 8))]
+            best = shortlist[rng.randrange(len(shortlist))]
             break
     if best is None:  # degenerate terrain; just take the farthest pair
         b = blue_candidates[0]
@@ -325,9 +342,27 @@ def _spawn_player(ctx: BuildContext, maintask) -> None:
     ctx.player_group = fg
 
 
+def _clamp_to_map(terrain, point: Point) -> Point:
+    """Clamp a point into the bounding box of the terrain's airports.
+
+    Geometry helpers happily project points past the map edge (e.g. a
+    support orbit 25 nm "behind" an airbase that is itself on the edge);
+    the airport bounding box is a safe proxy for the usable map area.
+    """
+    xs = [a.position.x for a in terrain.airports.values()]
+    ys = [a.position.y for a in terrain.airports.values()]
+    return Point(
+        min(max(point.x, min(xs)), max(xs)),
+        min(max(point.y, min(ys)), max(ys)),
+        terrain,
+    )
+
+
 def _spawn_support(ctx: BuildContext) -> None:
     spec, m, rng = ctx.spec, ctx.mission, ctx.rng
-    rear = ctx.point_toward_blue(ctx.blue_airport.position, 25)
+    rear = _clamp_to_map(
+        ctx.mission.terrain, ctx.point_toward_blue(ctx.blue_airport.position, 25)
+    )
     if spec["support"].get("awacs"):
         awacs_type = ctx.catalog["blue_awacs"][spec["era"]]
         m.awacs_flight(
@@ -340,7 +375,8 @@ def _spawn_support(ctx: BuildContext) -> None:
         tanker_type = ctx.catalog["blue_tanker"][spec["era"]]
         m.refuel_flight(
             ctx.blue, "Texaco", aircraft_class(tanker_type), None,
-            rear.point_from_heading((ctx.heading + 90) % 360, 20 * NM),
+            _clamp_to_map(ctx.mission.terrain,
+                          rear.point_from_heading((ctx.heading + 90) % 360, 20 * NM)),
             race_distance=40 * NM, heading=(ctx.heading + 90) % 360,
             altitude=int(22000 * FT), frequency=252, tacanchannel="38X",
         )
