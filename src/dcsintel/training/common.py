@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dcs import action, condition, triggers
 from dcs.mission import Mission
-from dcs.translation import String
 
 # F-16C pylon map (Block 50): wingtips = 1 & 9, targeting pod = 10.
 AIM120C = "{40EF17B7-F508-45de-8566-6FFECC0C1AB8}"
@@ -17,6 +16,23 @@ HYDRA_M151 = "{BRU42LS_2*LAU131_HYDRA_70_M151_L}"
 
 PLAYER_GROUP = "Viper 1"
 FLAG_REARMED = 50
+
+_ASCII_SUBS = (
+    ("\u2014", "-"),  # em dash
+    ("\u2013", "-"),  # en dash
+    ("\u2022", "-"),  # bullet
+    ("\u2192", "->"),  # arrow
+)
+
+
+def ascii_text(text: str) -> str:
+    """DCS trigger/briefing strings should be plain ASCII.
+
+    Non-ASCII punctuation in training popups is normalized to ASCII for DCS.
+    """
+    for old, new in _ASCII_SUBS:
+        text = text.replace(old, new)
+    return text.encode("ascii", "replace").decode("ascii")
 
 
 def apply_f16_sead_loadout(unit) -> None:
@@ -76,8 +92,11 @@ def apply_f16_cap_loadout(unit) -> None:
 
 
 def message(mission: Mission, text: str, seconds: int = 50) -> action.MessageToAll:
-    mission.translation.set_string(text, text)
-    return action.MessageToAll(String(text), seconds, clearview=False)
+    text = ascii_text(text)
+    # Must use DictKey_Translation_* ids. Using the message body as the key
+    # produces invalid multiline dictionary entries and breaks DCS on load.
+    string = mission.translation.create_string(text)
+    return action.MessageToAll(string, seconds, clearview=False)
 
 
 def zone_brief(

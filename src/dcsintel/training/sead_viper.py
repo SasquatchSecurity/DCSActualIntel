@@ -26,6 +26,7 @@ from .common import (
     on_group_dead,
     resolve_output_path,
     zone_brief,
+    ascii_text,
 )
 
 
@@ -101,7 +102,7 @@ def build_sead_viper(spec: dict, out_path: str | None = None) -> str:
     )
     player = fg.units[0]
     player.set_client()
-    player.skill = Skill.Player
+    player.skill = Skill.Client
     apply_f16_sead_loadout(player)
 
     wp_hold = spawn.point_from_heading(heading, hold_nm * NM)
@@ -183,11 +184,13 @@ def build_sead_viper(spec: dict, out_path: str | None = None) -> str:
     situation = b.get("situation") or messages.get("briefing_situation", "")
     objective = b.get("objective") or messages.get("briefing_objective", "")
     m.set_description_text(
-        f"{title}\n"
-        f"Threat level: {diff_label}\n\n"
-        f"{situation}\n\n"
-        f"OBJECTIVE: {objective}\n\n"
-        f"(DCSActualIntel training — {spec['curriculum']}, seed {spec['seed']})"
+        ascii_text(
+            f"{title}\n"
+            f"Threat level: {diff_label}\n\n"
+            f"{situation}\n\n"
+            f"OBJECTIVE: {objective}\n\n"
+            f"(DCSActualIntel training - {spec['curriculum']}, seed {spec['seed']})"
+        )
     )
 
     default_name = f"training_{spec['curriculum']}_{diff_label.lower().replace(' ', '_')}_{terrain_name}_{spec['seed']}.miz"

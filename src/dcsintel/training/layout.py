@@ -12,7 +12,7 @@ from dcs.weather import Wind
 
 from ..builder import FT, NM, TERRAIN_CLASSES, _pick_airbase_pair, aircraft_class
 from ..spec import SpecError
-from .common import PLAYER_GROUP
+from .common import PLAYER_GROUP, ascii_text
 
 
 def open_training_mission(
@@ -67,7 +67,7 @@ def spawn_player_air(
     )
     player = fg.units[0]
     player.set_client()
-    player.skill = Skill.Player
+    player.skill = Skill.Client
     if loadout_fn:
         loadout_fn(player)
     return fg, player
@@ -79,9 +79,11 @@ def write_briefing(mission: Mission, spec: dict, prof: dict) -> None:
     situation = b.get("situation") or ""
     objective = b.get("objective") or ""
     mission.set_description_text(
-        f"{title}\n"
-        f"Threat level: {prof['label']}\n\n"
-        f"{situation}\n\n"
-        f"OBJECTIVE: {objective}\n\n"
-        f"(DCSActualIntel training — {spec['curriculum']}, seed {spec['seed']})"
+        ascii_text(
+            f"{title}\n"
+            f"Threat level: {prof['label']}\n\n"
+            f"{situation}\n\n"
+            f"OBJECTIVE: {objective}\n\n"
+            f"(DCSActualIntel training - {spec['curriculum']}, seed {spec['seed']})"
+        )
     )
