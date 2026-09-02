@@ -140,12 +140,13 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     spec["terrain"] = terrain
 
     # --- era / time / weather (concrete values or placeholders for generate) ---
-    era = spec.get("era")
-    if era is None:
-        era = _choice(rng, ERAS)
-    if era not in ERAS:
-        _fail(f"'era' must be one of {list(ERAS)}, got {era!r}")
-    spec["era"] = era
+    if "era" in locked:
+        era = spec.get("era")
+        if era not in ERAS:
+            _fail(f"'era' must be one of {list(ERAS)}, got {era!r}")
+        spec["era"] = era
+    else:
+        spec.setdefault("era", "coldwar")
 
     tod = spec.get("time_of_day", "random")
     if tod not in TIMES_OF_DAY:

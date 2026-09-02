@@ -46,8 +46,7 @@ def apply_generate_options(
     lines: list[str] = []
 
     if "era" not in locked:
-        if rng.random() < gen["modern_era_chance"]:
-            spec["era"] = "modern"
+        spec["era"] = "modern" if rng.random() < gen["modern_era_chance"] else "coldwar"
 
     era_sams = catalog["sam_by_era"][spec["era"]]
 
@@ -77,10 +76,10 @@ def apply_generate_options(
 
     support = spec.setdefault("support", {})
     if "support" not in locked:
-        if gen.get("awacs") is not None:
-            support["awacs"] = gen["awacs"]
-        if gen.get("tanker") is not None:
-            support["tanker"] = gen["tanker"]
+        support["awacs"] = bool(gen.get("awacs")) and mtype != "dogfight"
+        support["tanker"] = bool(gen.get("tanker")) and mtype in (
+            "cap", "sead", "strike", "escort",
+        )
 
     if user_twists is not None:
         twists = list(user_twists)
