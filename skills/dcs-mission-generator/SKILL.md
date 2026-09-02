@@ -11,13 +11,16 @@ format. Never write mission Lua or `.miz` contents by hand.
 
 ## Prerequisites (first use only)
 
-`dcsintel` must be importable. If `dcsintel --help` fails, install it from
-the repo this skill ships in (requires Python 3.10+):
+`dcsintel` must be importable. If `dcsintel --help` fails, see
+`docs/INSTALL.md` in the repo (Python 3.10+, `pip install .`, optional skill
+install). Quick path:
 
 ```bash
 pip install <path-to-DCSActualIntel-repo>
 # or: pip install git+https://github.com/SasquatchSecurity/DCSActualIntel.git
 ```
+
+Full CLI and MissionSpec reference: `docs/USAGE.md`.
 
 ## Workflow
 
