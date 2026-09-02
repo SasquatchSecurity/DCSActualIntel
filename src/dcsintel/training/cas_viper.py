@@ -4,19 +4,19 @@ from __future__ import annotations
 
 import random
 
-from dcs import triggers
 from dcs.task import CAS
 
 from ..builder import FT, NM, spawn_vehicle_cluster
 from ..data import load_data
 from .common import (
+    add_training_intro,
     apply_f16_cas_loadout,
     message,
     on_group_dead,
     resolve_output_path,
     zone_brief,
 )
-from .layout import open_training_mission, spawn_player_air, write_briefing
+from .layout import inbound_spawn, open_training_mission, spawn_player_air, write_briefing
 from .threats import TrainingThreatCtx, maybe_add_cap, pick_defense_types, spawn_point_defense
 
 
@@ -29,10 +29,11 @@ def build_cas_viper(spec: dict, out_path: str | None = None) -> str:
     m, blue, red, heading, blue_ap, red_ap = open_training_mission(spec, rng)
     flot = red_ap.position.point_from_heading((heading + 180) % 360, spec["distance_nm"] * 0.55 * NM)
 
-    spawn = flot.point_from_heading((heading + 180) % 360, 15 * NM)
+    spawn = inbound_spawn(flot, heading, 15)
     alt_ft = 10000
     fg, player = spawn_player_air(
-        m, blue, spec["aircraft"], spawn, CAS, alt_ft, apply_f16_cas_loadout,
+        m, blue, spec["aircraft"], spawn, CAS, alt_ft,
+        apply_f16_cas_loadout, inbound_heading=heading,
     )
 
     hold = flot.point_from_heading((heading + 180) % 360, 8 * NM)
@@ -56,9 +57,7 @@ def build_cas_viper(spec: dict, out_path: str | None = None) -> str:
     zone_scale = prof["zone_scale"]
     hold_radius = int(5000 * zone_scale)
 
-    tr0 = triggers.TriggerStart(comment="training intro")
-    tr0.add_action(message(m, messages["intro"], 60))
-    m.triggerrules.triggers.append(tr0)
+    add_training_intro(m, messages["intro"])
 
     zone_brief(m, hold, hold_radius, player.id, 1, messages["phase1_contact"], 55)
     zone_brief(m, flot, int(4000 * zone_scale), player.id, 2, messages["phase2_attack"], 60)

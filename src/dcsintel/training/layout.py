@@ -51,6 +51,11 @@ def threat_axis_points(
     return points
 
 
+def inbound_spawn(objective: Point, heading: float, spawn_nm: float) -> Point:
+    """Return an air-start point ``spawn_nm`` behind ``objective`` on the inbound axis."""
+    return objective.point_from_heading((heading + 180) % 360, spawn_nm * NM)
+
+
 def spawn_player_air(
     mission: Mission,
     blue,
@@ -59,6 +64,7 @@ def spawn_player_air(
     maintask,
     alt_ft: int = 12000,
     loadout_fn=None,
+    inbound_heading: float | None = None,
 ):
     """Air-start the player inbound on the training route."""
     fg = mission.flight_group_inflight(
@@ -68,6 +74,8 @@ def spawn_player_air(
     player = fg.units[0]
     player.set_client()
     player.skill = Skill.Client
+    if inbound_heading is not None:
+        player.heading = inbound_heading
     if loadout_fn:
         loadout_fn(player)
     return fg, player

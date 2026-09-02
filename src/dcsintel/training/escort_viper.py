@@ -5,19 +5,19 @@ from __future__ import annotations
 import random
 
 import dcs.task
-from dcs import triggers
 from dcs.task import Escort
 
 from ..builder import FT, NM, spawn_red_flight
 from ..data import load_data
 from .common import (
+    add_training_intro,
     apply_f16_cap_loadout,
     message,
     on_group_dead,
     resolve_output_path,
     zone_brief,
 )
-from .layout import open_training_mission, spawn_player_air, write_briefing
+from .layout import inbound_spawn, open_training_mission, spawn_player_air, write_briefing
 from .threats import TrainingThreatCtx, maybe_add_cap, pick_defense_types, spawn_point_defense
 
 
@@ -39,10 +39,11 @@ def build_escort_viper(spec: dict, out_path: str | None = None) -> str:
     )
     package.add_waypoint(objective, int(18000 * FT))
 
-    escort_spawn = package_spawn.point_from_heading((heading + 90) % 360, 2 * NM)
+    escort_spawn = inbound_spawn(package_spawn, heading, 4)
     alt_ft = 22000
     fg, player = spawn_player_air(
-        m, blue, spec["aircraft"], escort_spawn, Escort, alt_ft, apply_f16_cap_loadout,
+        m, blue, spec["aircraft"], escort_spawn, Escort, alt_ft,
+        apply_f16_cap_loadout, inbound_heading=heading,
     )
     fg.add_waypoint(objective, int(alt_ft * FT))
 
@@ -63,9 +64,7 @@ def build_escort_viper(spec: dict, out_path: str | None = None) -> str:
     maybe_add_cap(ctx, prof["cap_flights"], objective)
 
     zone_scale = prof["zone_scale"]
-    tr0 = triggers.TriggerStart(comment="training intro")
-    tr0.add_action(message(m, messages["intro"], 60))
-    m.triggerrules.triggers.append(tr0)
+    add_training_intro(m, messages["intro"])
 
     zone_brief(m, escort_spawn, int(6000 * zone_scale), player.id, 1, messages["phase1_escort"], 55)
     zone_brief(

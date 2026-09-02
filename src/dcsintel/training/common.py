@@ -16,6 +16,9 @@ HYDRA_M151 = "{BRU42LS_2*LAU131_HYDRA_70_M151_L}"
 
 PLAYER_GROUP = "Viper 1"
 FLAG_REARMED = 50
+FLAG_INTRO_ACK = 100
+INTRO_DISPLAY_SECONDS = 90
+INTRO_ACK_SUFFIX = "\n\nSimulation is paused. Press SPACE when you are ready to begin."
 
 _ASCII_SUBS = (
     ("\u2014", "-"),  # em dash
@@ -97,6 +100,14 @@ def message(mission: Mission, text: str, seconds: int = 50) -> action.MessageToA
     # produces invalid multiline dictionary entries and breaks DCS on load.
     string = mission.translation.create_string(text)
     return action.MessageToAll(string, seconds, clearview=False)
+
+
+def add_training_intro(mission: Mission, intro_text: str) -> None:
+    """Show the training briefing popup and pause until the pilot presses SPACE."""
+    tr = triggers.TriggerStart(comment="training intro")
+    tr.add_action(message(mission, intro_text + INTRO_ACK_SUFFIX, INTRO_DISPLAY_SECONDS))
+    tr.add_action(action.StartWaitUserResponse(FLAG_INTRO_ACK))
+    mission.triggerrules.triggers.append(tr)
 
 
 def zone_brief(

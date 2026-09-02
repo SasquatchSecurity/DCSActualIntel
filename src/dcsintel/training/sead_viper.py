@@ -5,29 +5,29 @@ from __future__ import annotations
 import random
 from datetime import datetime, timezone
 
-from dcs import action, triggers
+from dcs import action
 from dcs.mapping import Point
 from dcs.mission import Mission
 from dcs.task import SEAD
 from dcs.translation import String
-from dcs.unit import Skill
 from dcs.weather import Wind
 
 from ..builder import (
     FT, NM, TERRAIN_CLASSES, _pick_airbase_pair, add_red_cap,
-    aircraft_class, set_group_skill, spawn_sam_site,
+    set_group_skill, spawn_sam_site,
 )
 from ..data import load_data
 from ..spec import SpecError
 from .common import (
     PLAYER_GROUP,
+    add_training_intro,
     apply_f16_sead_loadout,
     message,
     on_group_dead,
     resolve_output_path,
     zone_brief,
-    ascii_text,
 )
+from .layout import inbound_spawn, spawn_player_air, write_briefing
 
 
 class _SamCtx:
@@ -95,15 +95,11 @@ def build_sead_viper(spec: dict, out_path: str | None = None) -> str:
     spawn_nm = prof["spawn_nm"]
     hold_nm = prof["hold_nm"]
     alt_ft = 12000
-    spawn = sites[0].point_from_heading((heading + 180) % 360, spawn_nm * NM)
-    fg = m.flight_group_inflight(
-        blue, PLAYER_GROUP, aircraft_class(spec["aircraft"]), spawn,
-        int(alt_ft * FT), maintask=SEAD,
+    spawn = inbound_spawn(sites[0], heading, spawn_nm)
+    fg, player = spawn_player_air(
+        m, blue, spec["aircraft"], spawn, SEAD, alt_ft,
+        apply_f16_sead_loadout, inbound_heading=heading,
     )
-    player = fg.units[0]
-    player.set_client()
-    player.skill = Skill.Client
-    apply_f16_sead_loadout(player)
 
     wp_hold = spawn.point_from_heading(heading, hold_nm * NM)
     fg.add_waypoint(wp_hold, int(alt_ft * FT))
@@ -131,9 +127,7 @@ def build_sead_viper(spec: dict, out_path: str | None = None) -> str:
     hold_radius = int(6000 * zone_scale)
     approach_radius = int(8000 * zone_scale)
 
-    tr0 = triggers.TriggerStart(comment="training intro")
-    tr0.add_action(message(m, messages["intro"], 60))
-    m.triggerrules.triggers.append(tr0)
+    add_training_intro(m, messages["intro"])
 
     zone_brief(
         m, wp_hold, hold_radius, player.id, 1,
@@ -178,21 +172,9 @@ def build_sead_viper(spec: dict, out_path: str | None = None) -> str:
             50,
         )
 
-    b = spec.get("briefing") or {}
-    diff_label = prof["label"]
-    title = b.get("title") or "SEAD — HTS / HARM Qualification"
-    situation = b.get("situation") or messages.get("briefing_situation", "")
-    objective = b.get("objective") or messages.get("briefing_objective", "")
-    m.set_description_text(
-        ascii_text(
-            f"{title}\n"
-            f"Threat level: {diff_label}\n\n"
-            f"{situation}\n\n"
-            f"OBJECTIVE: {objective}\n\n"
-            f"(DCSActualIntel training - {spec['curriculum']}, seed {spec['seed']})"
-        )
-    )
+    write_briefing(m, spec, prof)
 
+    diff_label = prof["label"]
     default_name = f"training_{spec['curriculum']}_{diff_label.lower().replace(' ', '_')}_{terrain_name}_{spec['seed']}.miz"
     out_path = resolve_output_path(spec, default_name, out_path)
     m.save(out_path)

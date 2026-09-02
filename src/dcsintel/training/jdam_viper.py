@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import random
 
-from dcs import triggers
 from dcs.task import GroundAttack
 
 from ..builder import FT, NM
 from ..data import load_data
 from .common import (
+    add_training_intro,
     apply_f16_jdam_loadout,
     message,
     on_group_dead,
@@ -17,6 +17,7 @@ from .common import (
     zone_brief,
 )
 from .layout import (
+    inbound_spawn,
     open_training_mission,
     spawn_player_air,
     threat_axis_points,
@@ -41,10 +42,11 @@ def build_jdam_viper(spec: dict, out_path: str | None = None) -> str:
     target_count = prof["site_count"]
     targets = threat_axis_points(red_ap.position, heading, prof, target_count)
 
-    spawn = targets[0].point_from_heading((heading + 180) % 360, prof["spawn_nm"] * NM)
+    spawn = inbound_spawn(targets[0], heading, prof["spawn_nm"])
     alt_ft = 16000
     fg, player = spawn_player_air(
-        m, blue, spec["aircraft"], spawn, GroundAttack, alt_ft, apply_f16_jdam_loadout,
+        m, blue, spec["aircraft"], spawn, GroundAttack, alt_ft,
+        apply_f16_jdam_loadout, inbound_heading=heading,
     )
 
     wp_hold = spawn.point_from_heading(heading, prof["hold_nm"] * NM)
@@ -67,9 +69,7 @@ def build_jdam_viper(spec: dict, out_path: str | None = None) -> str:
     hold_radius = int(6000 * zone_scale)
     approach_radius = int(8000 * zone_scale)
 
-    tr0 = triggers.TriggerStart(comment="training intro")
-    tr0.add_action(message(m, messages["intro"], 60))
-    m.triggerrules.triggers.append(tr0)
+    add_training_intro(m, messages["intro"])
 
     zone_brief(m, wp_hold, hold_radius, player.id, 1, messages["phase1_route"], 55)
     zone_brief(

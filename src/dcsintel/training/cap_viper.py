@@ -5,19 +5,19 @@ from __future__ import annotations
 import random
 
 import dcs.task
-from dcs import triggers
 from dcs.task import CAP
 
 from ..builder import FT, NM, spawn_red_flight
 from ..data import load_data
 from .common import (
+    add_training_intro,
     apply_f16_cap_loadout,
     message,
     on_group_dead,
     resolve_output_path,
     zone_brief,
 )
-from .layout import open_training_mission, spawn_player_air, write_briefing
+from .layout import inbound_spawn, open_training_mission, spawn_player_air, write_briefing
 from .threats import TrainingThreatCtx, maybe_add_cap
 
 
@@ -31,10 +31,11 @@ def build_cap_viper(spec: dict, out_path: str | None = None) -> str:
     station = blue_ap.position.point_from_heading(heading, spec["distance_nm"] * 0.45 * NM)
     leg = station.point_from_heading((heading + 90) % 360, 15 * NM)
 
-    spawn = station.point_from_heading((heading + 180) % 360, 5 * NM)
+    spawn = inbound_spawn(station, heading, 5)
     alt_ft = 20000
     fg, player = spawn_player_air(
-        m, blue, spec["aircraft"], spawn, CAP, alt_ft, apply_f16_cap_loadout,
+        m, blue, spec["aircraft"], spawn, CAP, alt_ft,
+        apply_f16_cap_loadout, inbound_heading=heading,
     )
     fg.add_waypoint(station, int(alt_ft * FT))
     fg.add_waypoint(leg, int(alt_ft * FT))
@@ -52,9 +53,7 @@ def build_cap_viper(spec: dict, out_path: str | None = None) -> str:
     maybe_add_cap(ctx, prof["cap_flights"], station)
 
     zone_scale = prof["zone_scale"]
-    tr0 = triggers.TriggerStart(comment="training intro")
-    tr0.add_action(message(m, messages["intro"], 60))
-    m.triggerrules.triggers.append(tr0)
+    add_training_intro(m, messages["intro"])
 
     zone_brief(m, station, int(8000 * zone_scale), player.id, 1, messages["phase1_cap"], 55)
     zone_brief(
