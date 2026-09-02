@@ -137,6 +137,9 @@ dcsintel generate --spec my_mission.json
 
 # Sanity-check any generated mission
 dcsintel validate "C:/Users/you/Saved Games/DCS/Missions/sead_Syria_42.miz"
+
+# F-16 scripted training (SEAD HTS/HARM curriculum)
+dcsintel training --curriculum sead_viper --difficulty training --seed 1001
 ```
 
 All commands print JSON (designed to be equally readable by humans and
@@ -166,6 +169,22 @@ actionable message.
 
 CLI flags override the same fields in `--spec`, so you can keep a favorite
 spec file and vary just the seed or aircraft per run.
+
+`dcsintel training` (F-16 scripted curricula)
+
+| Flag | Meaning |
+|---|---|
+| `--curriculum ID` | Training curriculum (`sead_viper` is the only one implemented) |
+| `--difficulty TIER` | Threat tier: `training`, `routine`, `contested`, or `high_threat` |
+| `--spec FILE` | TrainingSpec JSON (overrides other flags when both are given) |
+| `--terrain NAME` | Override terrain |
+| `--seed N` | Reproducible layout; same spec+seed = identical .miz |
+| `--out PATH` | Output path (default: `Saved Games/DCS/Missions/`) |
+| `--no-ownership-check` | Skip module/terrain ownership validation |
+
+Threat tiers use plain US military labels on the briefing screen: **TRAINING**,
+**ROUTINE**, **CONTESTED**, and **HIGH THREAT**. The SEAD curriculum teaches
+the same HTS-to-HARM procedure at every tier; only the threat picture changes.
 
 `dcsintel validate MISSION.miz` - reloads the file with pydcs and reports:
 

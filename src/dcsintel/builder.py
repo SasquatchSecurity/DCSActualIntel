@@ -438,8 +438,9 @@ def build_mission(spec: dict, out_path: Optional[str] = None) -> Path:
     Returns the path of the saved ``.miz``.
     """
     if spec["type"] == "sead_training":
-        from .missions.sead_training import build_training
-        return Path(build_training(spec, out_path))
+        from .training import build_training
+
+        return build_training(spec, out_path)
 
     from . import missions  # deferred: missions imports helpers from this module
 

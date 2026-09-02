@@ -5,6 +5,7 @@ agents can consume the output:
 
 - ``dcsintel detect [--refresh]`` - find DCS, list owned modules/terrains
 - ``dcsintel generate --type sead | --spec spec.json [options]`` - build a .miz
+- ``dcsintel training --curriculum sead_viper [options]`` - F-16 training sortie
 - ``dcsintel validate mission.miz`` - reload and sanity-check a .miz
 
 Exit code 0 on success; 1 with a JSON ``{"error": ...}`` payload on failure.
@@ -75,6 +76,53 @@ def cmd_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_training(args: argparse.Namespace) -> int:
+    from .detect import detect
+    from .difficulty import DIFFICULTY_TIERS
+    from .training import build_training
+    from .training_spec import normalize_training
+
+    if args.spec:
+        raw = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+    else:
+        raw = {}
+
+    if args.curriculum:
+        raw["curriculum"] = args.curriculum
+    if args.difficulty:
+        raw["difficulty"] = args.difficulty
+    if args.terrain:
+        raw["terrain"] = args.terrain
+    if args.seed is not None:
+        raw["seed"] = args.seed
+
+    ownership = None if args.no_ownership_check else detect()
+    spec = normalize_training(raw, ownership)
+
+    out_path = args.out
+    if out_path is None and ownership and ownership.get("saved_games"):
+        diff = spec["difficulty"]
+        missions_dir = Path(ownership["saved_games"]) / "Missions"
+        out_path = str(
+            missions_dir
+            / f"training_{spec['curriculum']}_{diff}_{spec['terrain']}_{spec['seed']}.miz"
+        )
+
+    path = build_training(spec, out_path)
+    _print({
+        "miz": str(path.resolve()),
+        "curriculum": spec["curriculum"],
+        "difficulty": spec["difficulty"],
+        "difficulty_label": spec["difficulty_profile"]["label"],
+        "terrain": spec["terrain"],
+        "aircraft": spec["aircraft"],
+        "seed": spec["seed"],
+        "briefing_objective": spec["briefing"]["objective"],
+        "difficulty_tiers": list(DIFFICULTY_TIERS),
+    })
+    return 0
+
+
 def cmd_validate(args: argparse.Namespace) -> int:
     from .builder import validate_miz
 
@@ -105,6 +153,30 @@ def main(argv: list[str] | None = None) -> int:
         help="skip module/terrain ownership validation",
     )
     p_gen.set_defaults(func=cmd_generate)
+
+    p_trn = sub.add_parser(
+        "training",
+        help="generate an F-16 scripted training mission (SEAD curriculum v1)",
+    )
+    p_trn.add_argument("--spec", help="path to a TrainingSpec JSON file")
+    p_trn.add_argument(
+        "--curriculum",
+        default="sead_viper",
+        help="training curriculum id (default: sead_viper)",
+    )
+    p_trn.add_argument(
+        "--difficulty",
+        choices=["training", "routine", "contested", "high_threat"],
+        help="threat tier: training, routine, contested, or high_threat (default: routine)",
+    )
+    p_trn.add_argument("--terrain", help="terrain name, e.g. Caucasus")
+    p_trn.add_argument("--seed", type=int, help="random seed for reproducible layout")
+    p_trn.add_argument("--out", help="output .miz path (default: Saved Games/DCS/Missions)")
+    p_trn.add_argument(
+        "--no-ownership-check", action="store_true",
+        help="skip module/terrain ownership validation",
+    )
+    p_trn.set_defaults(func=cmd_training)
 
     p_val = sub.add_parser("validate", help="reload a generated .miz and sanity-check it")
     p_val.add_argument("miz", help="path to the .miz file")

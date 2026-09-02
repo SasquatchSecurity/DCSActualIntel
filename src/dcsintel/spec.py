@@ -79,23 +79,9 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
         _fail(f"'type' must be one of {list(MISSION_TYPES)}, got {mtype!r}")
 
     if mtype == "sead_training":
-        spec.setdefault("era", "coldwar")
-        spec.setdefault("player", {"aircraft": "F-16C_50", "start": "air"})
-        spec.setdefault("briefing", {})
-        seed = spec.get("seed")
-        if seed is None:
-            seed = random.randrange(2**31)
-        spec["seed"] = seed
-        owned_terrains = ownership["terrains"] if ownership else None
-        terrain = spec.get("terrain")
-        if terrain is None:
-            terrain = random.choice(owned_terrains) if owned_terrains else "Caucasus"
-        if owned_terrains is not None and terrain not in owned_terrains:
-            _fail(f"terrain {terrain!r} is not owned. Owned terrains: {owned_terrains}")
-        spec["terrain"] = terrain
-        spec.setdefault("distance_nm", 70)
-        spec.setdefault("enemy", {"skill": "Average"})
-        return spec
+        from .training_spec import normalize_training
+
+        return normalize_training(spec, ownership)
 
     seed = spec.get("seed")
     if seed is None:

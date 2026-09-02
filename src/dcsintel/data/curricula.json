@@ -1,0 +1,27 @@
+{
+  "_comment": "F-16 training curricula. Popup text is fixed doctrine; geometry and threats are seeded at build time from difficulty profiles.",
+
+  "curricula": {
+    "sead_viper": {
+      "aircraft": "F-16C_50",
+      "briefing_title": "SEAD — HTS / HARM Qualification",
+      "briefing_situation": "A scripted SEAD training sortie over range airspace. Follow the route; instructions appear at each phase gate.",
+      "briefing_objective": "Complete each phase as briefed. Suppress all assigned SAM sites along the route.",
+      "messages": {
+        "intro": "HTS / HARM TRAINING\n\nLoadout: 4x AGM-88, AIM-120C on wingtips only, HTS on station 10.\nAG master mode. Sensor select toggles HTS (6) vs TGP.\n\nFly the route. Briefings will appear as you reach each phase.",
+        "phase1_hts": "PHASE 1 — HTS SEARCH\n\nMaster mode AG. Press 6 for HTS (not HARM yet).\nDTK on the left DED: set range scale with DEP/RTN if the picture is empty.\nFly toward the route — emitters appear as symbols when their radars are active.\nCursor over a symbol: read the emitter line on the DED.",
+        "phase2_handoff": "PHASE 2 — HANDOFF & SHACK\n\nWith HTS cursor on a live emitter:\n  • TMS FWD (short) = handoff to HARM seeker\n  • Switch to HARM (7), select HAS or POS as briefed\nSHACK on the DED means the HARM has a valid seeker track — you may fire.\nNo SHACK = do not launch. Break turn, reposition, hand off again.",
+        "site_complete_rearm": "SITE COMPLETE — REARMING\n\nSAM site is down. Your HARM load is being replenished.\nContinue to the next training area on the route.",
+        "phase3_second_site": "PHASE 3 — NEXT SITE\n\nSame flow: HTS (6) to build the picture, handoff, HARM (7), confirm SHACK, shoot.\nMultiple emitters? Cursor the track radar first, then mop up launchers.",
+        "training_complete": "TRAINING COMPLETE\n\nAll assigned sites suppressed. You now have the full HTS-to-HARM chain:\nHTS picture → handoff → SHACK → launch.\nRTB when ready."
+      }
+    }
+  },
+
+  "future_platforms": {
+    "_comment": "Planned training curricula by aircraft module. Not implemented yet.",
+    "FA-18C_hornet": ["sead_hornet", "strike_hornet", "cap_hornet"],
+    "F-15C": ["cap_eagle", "intercept_eagle", "escort_eagle"],
+    "A-10C_2": ["cas_hog", "strike_hog"]
+  }
+}

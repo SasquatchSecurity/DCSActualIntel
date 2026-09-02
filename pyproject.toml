@@ -26,4 +26,4 @@ dcsintel = "dcsintel.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-dcsintel = ["data/*.json"]
+dcsintel = ["data/*.json", "data/curricula.json"]
