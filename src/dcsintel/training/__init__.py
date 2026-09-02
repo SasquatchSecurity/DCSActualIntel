@@ -7,11 +7,22 @@ from pathlib import Path
 from ..spec import SpecError
 
 
+_BUILDERS = {
+    "sead_viper": "sead_viper",
+    "jdam_viper": "jdam_viper",
+}
+
+
 def build_training(spec: dict, out_path: str | None = None) -> Path:
     """Build a normalized training spec and return the saved ``.miz`` path."""
     curriculum = spec.get("curriculum", "sead_viper")
-    if curriculum == "sead_viper":
-        from .sead_viper import build_sead_viper
+    module = _BUILDERS.get(curriculum)
+    if module is None:
+        raise SpecError(
+            f"no builder for curriculum {curriculum!r}. "
+            f"Implemented: {sorted(_BUILDERS)}"
+        )
+    import importlib
 
-        return Path(build_sead_viper(spec, out_path))
-    raise SpecError(f"no builder for curriculum {curriculum!r}")
+    build_fn = getattr(importlib.import_module(f".{module}", __package__), f"build_{module}")
+    return Path(build_fn(spec, out_path))

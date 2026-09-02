@@ -4,6 +4,7 @@
   "curricula": {
     "sead_viper": {
       "aircraft": "F-16C_50",
+      "threat_model": "sead",
       "briefing_title": "SEAD — HTS / HARM Qualification",
       "briefing_situation": "A scripted SEAD training sortie over range airspace. Follow the route; instructions appear at each phase gate.",
       "briefing_objective": "Complete each phase as briefed. Suppress all assigned SAM sites along the route.",
@@ -14,6 +15,21 @@
         "site_complete_rearm": "SITE COMPLETE — REARMING\n\nSAM site is down. Your HARM load is being replenished.\nContinue to the next training area on the route.",
         "phase3_second_site": "PHASE 3 — NEXT SITE\n\nSame flow: HTS (6) to build the picture, handoff, HARM (7), confirm SHACK, shoot.\nMultiple emitters? Cursor the track radar first, then mop up launchers.",
         "training_complete": "TRAINING COMPLETE\n\nAll assigned sites suppressed. You now have the full HTS-to-HARM chain:\nHTS picture → handoff → SHACK → launch.\nRTB when ready."
+      }
+    },
+    "jdam_viper": {
+      "aircraft": "F-16C_50",
+      "threat_model": "point_defense",
+      "briefing_title": "Strike — JDAM Employment",
+      "briefing_situation": "A scripted JDAM training sortie. Destroy supply targets along the route; point-defense threats guard each objective.",
+      "briefing_objective": "Complete each phase as briefed. Destroy all assigned targets with GBU-38 JDAM.",
+      "messages": {
+        "intro": "JDAM TRAINING\n\nLoadout: 4x GBU-38, AIM-120C on wingtips, Litening TGP on station 10.\nMaster mode AG. Sensor select toggles TGP (5).\n\nFly the route. Briefings appear at each phase gate.",
+        "phase1_route": "PHASE 1 — INGRESS\n\nFly the route at briefed altitude.\nTGP (5): verify the target area as you approach.\nCheck MAN page: confirm JDAM program and desired TOT if using CNTL.",
+        "phase2_designate": "PHASE 2 — DESIGNATE & RELEASE\n\nTGP on the target:\n  • Cursor / slew crosshairs onto the aimpoint\n  • TMS FWD (short) = designate (DMPI)\n  • Select JDAM on SMS, confirm CNTL or VIS mode as briefed\n  • Pickle when IN RNG and criteria met\n\nExpect point defense near the target — plan egress before you pickle.",
+        "target_complete": "TARGET COMPLETE\n\nTarget destroyed. Continue to the next objective on the route.",
+        "phase3_next_target": "PHASE 3 — NEXT TARGET\n\nSame flow: TGP designate → JDAM release → egress.\nRe-acquire the next aimpoint before you commit.",
+        "training_complete": "TRAINING COMPLETE\n\nAll assigned targets destroyed.\nYou have the full JDAM chain: TGP designate → weapon release → egress.\nRTB when ready."
       }
     }
   },

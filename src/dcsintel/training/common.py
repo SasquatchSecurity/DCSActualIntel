@@ -6,10 +6,14 @@ from dcs import action, condition, triggers
 from dcs.mission import Mission
 from dcs.translation import String
 
-# F-16C pylon map (Block 50): wingtips = 1 & 9, HTS = 10.
+# F-16C pylon map (Block 50): wingtips = 1 & 9, targeting pod = 10.
 AIM120C = "{40EF17B7-F508-45de-8566-6FFECC0C1AB8}"
 HARM = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}"
 HTS = "{AN_ASQ_213}"
+LITENING = "{A111396E-D3E8-4b9c-8AC9-2432489304D5}"
+GBU38 = "{GBU-38}"
+AGM65D = "{444BA8AE-82A7-4345-842E-76154EFCCA47}"
+HYDRA_M151 = "{BRU42LS_2*LAU131_HYDRA_70_M151_L}"
 
 PLAYER_GROUP = "Viper 1"
 FLAG_REARMED = 50
@@ -24,6 +28,50 @@ def apply_f16_sead_loadout(unit) -> None:
         7: {"CLSID": HARM},
         9: {"CLSID": AIM120C},
         10: {"CLSID": HTS},
+    }
+
+
+def apply_f16_jdam_loadout(unit) -> None:
+    unit.pylons = {
+        1: {"CLSID": AIM120C},
+        3: {"CLSID": GBU38},
+        4: {"CLSID": GBU38},
+        6: {"CLSID": GBU38},
+        7: {"CLSID": GBU38},
+        9: {"CLSID": AIM120C},
+        10: {"CLSID": LITENING},
+    }
+
+
+def apply_f16_maverick_loadout(unit) -> None:
+    unit.pylons = {
+        1: {"CLSID": AIM120C},
+        3: {"CLSID": AGM65D},
+        4: {"CLSID": AGM65D},
+        6: {"CLSID": AGM65D},
+        7: {"CLSID": AGM65D},
+        9: {"CLSID": AIM120C},
+        10: {"CLSID": LITENING},
+    }
+
+
+def apply_f16_cas_loadout(unit) -> None:
+    unit.pylons = {
+        1: {"CLSID": AIM120C},
+        3: {"CLSID": HYDRA_M151},
+        4: {"CLSID": HYDRA_M151},
+        9: {"CLSID": AIM120C},
+        10: {"CLSID": LITENING},
+    }
+
+
+def apply_f16_cap_loadout(unit) -> None:
+    unit.pylons = {
+        1: {"CLSID": AIM120C},
+        2: {"CLSID": AIM120C},
+        3: {"CLSID": AIM120C},
+        7: {"CLSID": AIM120C},
+        9: {"CLSID": AIM120C},
     }
 
 

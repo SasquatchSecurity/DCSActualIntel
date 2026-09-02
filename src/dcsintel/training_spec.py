@@ -71,14 +71,15 @@ def normalize_training(spec: dict, ownership: Optional[dict] = None) -> dict:
 
     catalog = load_data("catalog")
     prof = spec["difficulty_profile"]
-    era_sams = set(catalog["sam_by_era"][era])
-    missing = [s for s in prof["sam_pool"] if s not in era_sams]
-    if missing:
-        _fail(
-            f"difficulty {difficulty!r} requires SAM types {missing} "
-            f"which are not available in era {era!r}. "
-            f"Era allows: {sorted(era_sams)}"
-        )
+    if meta.get("threat_model") in ("sead", "point_defense"):
+        era_sams = set(catalog["sam_by_era"][era])
+        missing = [s for s in prof["sam_pool"] if s not in era_sams]
+        if missing:
+            _fail(
+                f"difficulty {difficulty!r} requires SAM types {missing} "
+                f"which are not available in era {era!r}. "
+                f"Era allows: {sorted(era_sams)}"
+            )
 
     seed = spec.get("seed")
     if seed is None:
@@ -108,8 +109,8 @@ def normalize_training(spec: dict, ownership: Optional[dict] = None) -> dict:
     briefing.setdefault("objective", meta.get("briefing_objective"))
     spec["briefing"] = briefing
 
-    # Legacy alias so existing generate tests keep working.
-    spec["type"] = "sead_training"
+    # Legacy alias so ``generate --type sead_training`` keeps working.
+    spec["type"] = "sead_training" if curriculum == "sead_viper" else "training"
     spec.setdefault("player", {"aircraft": aircraft, "start": "air"})
 
     return spec
