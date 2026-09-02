@@ -31,6 +31,60 @@
         "phase3_next_target": "PHASE 3 — NEXT TARGET\n\nSame flow: TGP designate → JDAM release → egress.\nRe-acquire the next aimpoint before you commit.",
         "training_complete": "TRAINING COMPLETE\n\nAll assigned targets destroyed.\nYou have the full JDAM chain: TGP designate → weapon release → egress.\nRTB when ready."
       }
+    },
+    "maverick_viper": {
+      "aircraft": "F-16C_50",
+      "threat_model": "point_defense",
+      "briefing_title": "Strike — Maverick Employment",
+      "briefing_situation": "A scripted Maverick training sortie. Destroy vehicle targets along the route using TGP-assisted AGM-65 employment.",
+      "briefing_objective": "Complete each phase as briefed. Destroy all assigned targets with AGM-65 Maverick.",
+      "messages": {
+        "intro": "MAVERICK TRAINING\n\nLoadout: 4x AGM-65D, AIM-120C on wingtips, Litening TGP on station 10.\nMaster mode AG. Sensor select toggles TGP (5) vs Maverick (6).\n\nFly the route. Briefings appear at each phase gate.",
+        "phase1_route": "PHASE 1 — INGRESS\n\nFly the route at briefed altitude.\nTGP (5): acquire the target area visually before you commit.",
+        "phase2_lock": "PHASE 2 — SLAVE, LOCK & LAUNCH\n\nTGP on the target:\n  • Slave Maverick to TGP (sensor select / handoff as briefed)\n  • Switch to Maverick (6), confirm seeker on the aimpoint\n  • Wait for solid lock (boxed target)\n  • Launch, then crank away from point defense\n\nDo not launch without a valid seeker track.",
+        "target_complete": "TARGET COMPLETE\n\nTarget destroyed. Press inbound to the next objective.",
+        "phase3_next_target": "PHASE 3 — NEXT TARGET\n\nSame flow: TGP → Maverick lock → launch → egress.",
+        "training_complete": "TRAINING COMPLETE\n\nAll assigned targets destroyed.\nYou have the Maverick chain: TGP slave → seeker lock → launch → egress.\nRTB when ready."
+      }
+    },
+    "cas_viper": {
+      "aircraft": "F-16C_50",
+      "threat_model": "point_defense",
+      "briefing_title": "CAS — Troops In Contact",
+      "briefing_situation": "A scripted CAS training sortie. Friendly armor is in contact; destroy the enemy column while avoiding blue forces.",
+      "briefing_objective": "Positive ID with TGP, then attack the enemy column with rockets. Do not fire on friendlies.",
+      "messages": {
+        "intro": "CAS TRAINING\n\nLoadout: Hydra rockets, AIM-120C on wingtips, Litening TGP on station 10.\nMaster mode AG. You are supporting friendly troops in contact (TIC).\n\nFly to the contact point. Briefings appear at each phase gate.",
+        "phase1_contact": "PHASE 1 — CONTACT POINT\n\nTGP (5): locate friendly positions (blue icons) and the enemy column.\nConfirm geometry before you arm — friendlies are southwest of the enemy.\nCall your run-in axis and stand off from SHORAD.",
+        "phase2_attack": "PHASE 2 — ROCKET ATTACK\n\nMaster mode AG, rockets selected.\nCCIP reticle on enemy vehicles — confirm no friendlies under the reticle.\nRipple rockets, then climb and turn cold from the threat.",
+        "training_complete": "TRAINING COMPLETE\n\nEnemy column destroyed. You completed a basic CAS TIC: ID with TGP, attack, egress.\nRTB when ready."
+      }
+    },
+    "cap_viper": {
+      "aircraft": "F-16C_50",
+      "threat_model": "air",
+      "briefing_title": "CAP — Combat Air Patrol",
+      "briefing_situation": "A scripted CAP training sortie. Hold your station and intercept inbound bandits before they reach friendly airspace.",
+      "briefing_objective": "Establish CAP on station, identify inbound groups, and destroy hostile aircraft with AIM-120.",
+      "messages": {
+        "intro": "CAP TRAINING\n\nLoadout: AIM-120C missiles. Air-to-air master mode.\nYou are holding a CAP station between friendly and enemy territory.\n\nFly to station. Briefings appear as threats approach.",
+        "phase1_cap": "PHASE 1 — CAP STATION\n\nHold the briefed racetrack.\nRWS/TWS: search the picture forward of the threat axis.\nReport any groups to GCI (simulated — you are cleared to engage HOSTILE tracks).",
+        "phase2_commit": "PHASE 2 — COMMIT & ENGAGE\n\nBandits inbound:\n  • Confirm ID (HOSTILE)\n  • Commit when inside briefed MAR\n  • AIM-120 select, shoot, crank for support\n\nOne engagement at a time — keep tally on the bandit formation.",
+        "training_complete": "TRAINING COMPLETE\n\nBandits destroyed. You held CAP, committed on cue, and employed AIM-120.\nRTB when ready."
+      }
+    },
+    "escort_viper": {
+      "aircraft": "F-16C_50",
+      "threat_model": "point_defense",
+      "briefing_title": "Escort — Strike Package Support",
+      "briefing_situation": "A scripted escort training sortie. Protect the strike package en route to the target area.",
+      "briefing_objective": "Stay with the strike package, engage inbound interceptors, and bring the package through the threat area.",
+      "messages": {
+        "intro": "ESCORT TRAINING\n\nLoadout: AIM-120C missiles.\nYou are escorting a friendly strike package to the target area.\n\nJoin on the package and stay within visual/support range.",
+        "phase1_escort": "PHASE 1 — JOIN-UP\n\nFall in on the strike package.\nMaintain formation — do not outrun the bombers.\nYour job is threat reaction, not leading the attack.",
+        "phase2_engagement": "PHASE 2 — THREAT REACTION\n\nInterceptors inbound toward the package:\n  • Engage beyond the package if possible\n  • Crank after each shot to keep SA on the second bandit\n  • Package continues — do not chase deep into enemy airspace",
+        "training_complete": "TRAINING COMPLETE\n\nInterceptors defeated. The package is through the threat area.\nRTB with the strikers when ready."
+      }
     }
   },
 

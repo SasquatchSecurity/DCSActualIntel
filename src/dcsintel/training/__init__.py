@@ -10,6 +10,10 @@ from ..spec import SpecError
 _BUILDERS = {
     "sead_viper": "sead_viper",
     "jdam_viper": "jdam_viper",
+    "maverick_viper": "maverick_viper",
+    "cas_viper": "cas_viper",
+    "cap_viper": "cap_viper",
+    "escort_viper": "escort_viper",
 }
 
 

@@ -174,7 +174,7 @@ spec file and vary just the seed or aircraft per run.
 
 | Flag | Meaning |
 |---|---|
-| `--curriculum ID` | Training curriculum (`sead_viper` is the only one implemented) |
+| `--curriculum ID` | Training curriculum (`sead_viper`, `jdam_viper`, `maverick_viper`, `cas_viper`, `cap_viper`, `escort_viper`) |
 | `--difficulty TIER` | Threat tier: `training`, `routine`, `contested`, or `high_threat` |
 | `--spec FILE` | TrainingSpec JSON (overrides other flags when both are given) |
 | `--terrain NAME` | Override terrain |
