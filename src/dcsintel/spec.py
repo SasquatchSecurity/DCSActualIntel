@@ -29,6 +29,8 @@ Schema (all fields optional unless noted)::
       },
       "support": {"awacs": true, "tanker": true},
       "distance_nm": 80,                  # player base -> objective distance
+      "difficulty": "training|routine|contested|high_threat",  # random play only
+      "twists": ["night_ops", "bandits_airborne"],            # optional scenario twists
       "briefing": {"title": "...", "situation": "...", "objective": "..."},
       "seed": 42
     }
@@ -40,6 +42,7 @@ import random
 from typing import Optional
 
 from .data import load_data
+from .difficulty import DIFFICULTY_TIERS
 
 MISSION_TYPES = ("dogfight", "cap", "sead", "strike", "escort", "cas", "intercept", "sead_training")
 ERAS = ("modern", "coldwar")
@@ -61,6 +64,29 @@ def _choice(rng: random.Random, seq):
     return seq[rng.randrange(len(seq))]
 
 
+def _locked_fields(original: dict) -> set[str]:
+    """Fields explicitly set by the author; difficulty must not override these."""
+    locked: set[str] = set()
+    for key in ("era", "distance_nm", "difficulty"):
+        if key in original:
+            locked.add(key)
+    tod = original.get("time_of_day")
+    if tod is not None and tod != "random":
+        locked.add("time_of_day")
+    weather = original.get("weather")
+    if weather is not None and weather != "random":
+        locked.add("weather")
+    if "twists" in original:
+        locked.add("twists")
+    if "support" in original:
+        locked.add("support")
+    enemy = original.get("enemy")
+    if isinstance(enemy, dict):
+        for key in enemy:
+            locked.add(f"enemy.{key}")
+    return locked
+
+
 def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     """Validate ``spec`` and fill every omitted field with seeded choices.
 
@@ -71,8 +97,10 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     """
     if not isinstance(spec, dict):
         _fail("spec must be a JSON object")
+    original = dict(spec)
     spec = dict(spec)  # shallow copy; we normalize in place below
     catalog = load_data("catalog")
+    locked = _locked_fields(original)
 
     mtype = spec.get("type")
     if mtype not in MISSION_TYPES:
@@ -91,6 +119,11 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     spec["seed"] = seed
     rng = random.Random(seed)
 
+    difficulty = spec.get("difficulty", "routine")
+    if difficulty not in DIFFICULTY_TIERS:
+        _fail(f"'difficulty' must be one of {list(DIFFICULTY_TIERS)}, got {difficulty!r}")
+    spec["difficulty"] = difficulty
+
     # --- terrain ---------------------------------------------------------
     owned_terrains = ownership["terrains"] if ownership else None
     terrain = spec.get("terrain")
@@ -106,8 +139,10 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
         )
     spec["terrain"] = terrain
 
-    # --- era / time / weather --------------------------------------------
-    era = spec.get("era") or _choice(rng, ERAS)
+    # --- era / time / weather (concrete values or placeholders for generate) ---
+    era = spec.get("era")
+    if era is None:
+        era = _choice(rng, ERAS)
     if era not in ERAS:
         _fail(f"'era' must be one of {list(ERAS)}, got {era!r}")
     spec["era"] = era
@@ -115,16 +150,11 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     tod = spec.get("time_of_day", "random")
     if tod not in TIMES_OF_DAY:
         _fail(f"'time_of_day' must be one of {list(TIMES_OF_DAY)}, got {tod!r}")
-    if tod == "random":
-        # Weighted toward daylight: night SEAD in an F-5 isn't fun by accident.
-        tod = _choice(rng, ["dawn", "day", "day", "day", "dusk", "night"])
     spec["time_of_day"] = tod
 
     weather = spec.get("weather", "random")
     if weather not in WEATHERS:
         _fail(f"'weather' must be one of {list(WEATHERS)}, got {weather!r}")
-    if weather == "random":
-        weather = _choice(rng, ["clear", "clear", "scattered", "scattered", "broken", "overcast", "rain"])
     spec["weather"] = weather
 
     # --- player ------------------------------------------------------------
@@ -156,47 +186,9 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     player.setdefault("airbase", None)  # resolved against terrain by the builder
     spec["player"] = player
 
-    # --- enemy -------------------------------------------------------------
-    enemy = dict(spec.get("enemy") or {})
-    skill = enemy.get("skill", "Good")
-    if skill not in SKILLS:
-        _fail(f"enemy.skill must be one of {list(SKILLS)}, got {skill!r}")
-    enemy["skill"] = skill
-
-    era_sams = catalog["sam_by_era"][era]
-    sam_types = enemy.get("sam_types")
-    if sam_types is not None:
-        bad = [s for s in sam_types if s not in catalog["sam_templates"]]
-        if bad:
-            _fail(f"unknown enemy.sam_types {bad}. Known: {list(catalog['sam_templates'])}")
-        wrong_era = [s for s in sam_types if s not in era_sams]
-        if wrong_era:
-            _fail(f"enemy.sam_types {wrong_era} not appropriate for era {era!r}. Allowed: {era_sams}")
-    else:
-        count = rng.randint(2, 3) if mtype == "sead" else 1
-        sam_types = rng.sample(era_sams, min(count, len(era_sams)))
-    enemy["sam_types"] = sam_types
-
-    fighters = enemy.get("fighters")
-    if fighters is None:
-        fighters = {"dogfight": rng.randint(1, 2)}.get(mtype, rng.randint(2, 4))
-    if not isinstance(fighters, int) or not 1 <= fighters <= 8:
-        _fail(f"enemy.fighters must be an integer 1-8, got {fighters!r}")
-    enemy["fighters"] = fighters
-
-    cap_flights = enemy.get("cap_flights")
-    if cap_flights is None:
-        cap_flights = rng.randint(0, 1)
-    if not isinstance(cap_flights, int) or not 0 <= cap_flights <= 4:
-        _fail(f"enemy.cap_flights must be an integer 0-4, got {cap_flights!r}")
-    enemy["cap_flights"] = cap_flights
-    spec["enemy"] = enemy
-
-    # --- support -----------------------------------------------------------
-    support = dict(spec.get("support") or {})
-    support.setdefault("awacs", mtype != "dogfight")
-    support.setdefault("tanker", mtype in ("cap", "sead", "strike", "escort"))
-    spec["support"] = support
+    # --- enemy / support (defaults from difficulty profile) ----------------
+    spec["enemy"] = dict(spec.get("enemy") or {})
+    spec["support"] = dict(spec.get("support") or {})
 
     # --- geometry ----------------------------------------------------------
     distance = spec.get("distance_nm")
@@ -213,6 +205,56 @@ def normalize(spec: dict, ownership: Optional[dict] = None) -> dict:
     if not isinstance(distance, (int, float)) or not 15 <= distance <= 300:
         _fail(f"distance_nm must be a number between 15 and 300, got {distance!r}")
     spec["distance_nm"] = float(distance)
+
+    from .generate_profile import apply_generate_options
+    from .twists import TWIST_DEFS
+
+    user_twists = original.get("twists") if "twists" in original else None
+    if user_twists is not None:
+        if not isinstance(user_twists, list):
+            _fail(f"'twists' must be a list of twist ids, got {user_twists!r}")
+        bad = [t for t in user_twists if t not in TWIST_DEFS]
+        if bad:
+            _fail(f"unknown twists {bad}. Known: {sorted(TWIST_DEFS)}")
+
+    spec["_twist_briefing_lines"] = apply_generate_options(
+        spec, rng, catalog, locked=locked, user_twists=user_twists,
+    )
+
+    enemy = spec["enemy"]
+    skill = enemy.get("skill", "Good")
+    if skill not in SKILLS:
+        _fail(f"enemy.skill must be one of {list(SKILLS)}, got {skill!r}")
+    enemy["skill"] = skill
+
+    era_sams = catalog["sam_by_era"][spec["era"]]
+    sam_types = enemy.get("sam_types")
+    if sam_types is not None:
+        bad = [s for s in sam_types if s not in catalog["sam_templates"]]
+        if bad:
+            _fail(f"unknown enemy.sam_types {bad}. Known: {list(catalog['sam_templates'])}")
+        wrong_era = [s for s in sam_types if s not in era_sams]
+        if wrong_era:
+            _fail(f"enemy.sam_types {wrong_era} not appropriate for era {spec['era']!r}. Allowed: {era_sams}")
+    else:
+        _fail("internal error: enemy.sam_types not set by generate profile")
+    enemy["sam_types"] = sam_types
+
+    fighters = enemy.get("fighters")
+    if not isinstance(fighters, int) or not 1 <= fighters <= 8:
+        _fail(f"enemy.fighters must be an integer 1-8, got {fighters!r}")
+    enemy["fighters"] = fighters
+
+    cap_flights = enemy.get("cap_flights")
+    if not isinstance(cap_flights, int) or not 0 <= cap_flights <= 4:
+        _fail(f"enemy.cap_flights must be an integer 0-4, got {cap_flights!r}")
+    enemy["cap_flights"] = cap_flights
+    spec["enemy"] = enemy
+
+    support = spec["support"]
+    support.setdefault("awacs", mtype != "dogfight")
+    support.setdefault("tanker", mtype in ("cap", "sead", "strike", "escort"))
+    spec["support"] = support
 
     # --- briefing ----------------------------------------------------------
     briefing = dict(spec.get("briefing") or {})

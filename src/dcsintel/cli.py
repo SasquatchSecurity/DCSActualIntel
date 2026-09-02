@@ -55,6 +55,8 @@ def cmd_generate(args: argparse.Namespace) -> int:
         raw["seed"] = args.seed
     if args.aircraft:
         raw.setdefault("player", {})["aircraft"] = args.aircraft
+    if args.difficulty:
+        raw["difficulty"] = args.difficulty
 
     ownership = None if args.no_ownership_check else detect()
     spec = normalize(raw, ownership)
@@ -71,6 +73,9 @@ def cmd_generate(args: argparse.Namespace) -> int:
         "terrain": spec["terrain"],
         "aircraft": spec["player"]["aircraft"],
         "seed": spec["seed"],
+        "difficulty": spec.get("difficulty"),
+        "difficulty_label": spec.get("difficulty_profile", {}).get("label"),
+        "twists": spec.get("twists", []),
         "briefing_objective": spec["briefing"]["objective"],
     })
     return 0
@@ -147,6 +152,11 @@ def main(argv: list[str] | None = None) -> int:
     p_gen.add_argument("--terrain", help="terrain name, e.g. Caucasus")
     p_gen.add_argument("--aircraft", help="player aircraft DCS type id, e.g. F-16C_50")
     p_gen.add_argument("--seed", type=int, help="random seed for reproducible missions")
+    p_gen.add_argument(
+        "--difficulty",
+        choices=["training", "routine", "contested", "high_threat"],
+        help="threat tier for random missions (default: routine)",
+    )
     p_gen.add_argument("--out", help="output .miz path (default: Saved Games/DCS/Missions)")
     p_gen.add_argument(
         "--no-ownership-check", action="store_true",

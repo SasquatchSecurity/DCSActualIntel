@@ -164,11 +164,18 @@ actionable message.
 | `--terrain NAME` | Override terrain (e.g. `Syria`) |
 | `--aircraft ID` | Override player aircraft (e.g. `F-16C_50`) |
 | `--seed N` | Reproducible randomness; same spec+seed = identical .miz |
+| `--difficulty TIER` | Threat tier: `training`, `routine`, `contested`, or `high_threat` (default: `routine`) |
 | `--out PATH` | Output path (default: `Saved Games/DCS/Missions/`) |
 | `--no-ownership-check` | Skip module/terrain ownership validation |
 
 CLI flags override the same fields in `--spec`, so you can keep a favorite
 spec file and vary just the seed or aircraft per run.
+
+Random missions use the same four threat tiers as training. Higher tiers raise
+enemy skill, SAM density, CAP flights, and weather severity, and may add scenario
+twists (night ops, bandits airborne, thin support, etc.). Set
+`"difficulty": "contested"` or pass `--difficulty contested`; pin twists in a
+spec with `"twists": ["night_ops", "bandits_airborne"]`.
 
 `dcsintel training` (F-16 scripted curricula)
 
@@ -183,8 +190,8 @@ spec file and vary just the seed or aircraft per run.
 | `--no-ownership-check` | Skip module/terrain ownership validation |
 
 Threat tiers use plain US military labels on the briefing screen: **TRAINING**,
-**ROUTINE**, **CONTESTED**, and **HIGH THREAT**. The SEAD curriculum teaches
-the same HTS-to-HARM procedure at every tier; only the threat picture changes.
+**ROUTINE**, **CONTESTED**, and **HIGH THREAT**. Training curricula teach the
+same procedure at every tier; only the threat picture changes.
 
 `dcsintel validate MISSION.miz` - reloads the file with pydcs and reports:
 
