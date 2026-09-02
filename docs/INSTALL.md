@@ -99,4 +99,4 @@ Cache lives at `~/.dcsintel/detected.json`. Run `dcsintel detect --refresh`.
 **`unknown_module_folders` in detect output**  
 A mod folder is not mapped yet. Add it to `src/dcsintel/data/modules.json` and open a PR.
 
-Next: [Usage](USAGE.md)
+Next: [Usage](USAGE.md) · [FAQ](FAQ.md)

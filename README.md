@@ -1,16 +1,16 @@
 # DCSActualIntel
 
-![An F-16 dissolving into glowing neural-network wireframe over a holographic terrain grid](docs/assets/hero.jpg)
+![DCS World mission generator — F-16 concept art with AI wireframe overlay](docs/assets/hero.jpg)
+
+**DCSActualIntel is a DCS World mission generator.** It produces random sorties and F-16 training missions as flyable `.miz` files for the Mission Editor, using only the aircraft modules and maps you own. Works with the `dcsintel` CLI, or with AI coding agents (Cursor, Claude Code, GitHub Copilot, and other [Agent Skills](https://agentskills.io) hosts) via the bundled `dcs-mission-generator` skill.
 
 *AI shapes the scenario; Python and [pydcs](https://github.com/pydcs/dcs) build the `.miz`. Hero image derived from a public-domain U.S. Air Force photo (F-16 Block 70, 412th Test Wing, Edwards AFB).*
 
-**Random and training missions for DCS World** — sized to the modules and maps you actually own.
-
-Ask your AI agent for a SEAD sortie, a CAP station, or an F-16 HTS/HARM syllabus. You get briefing text, threats, and a flyable mission file in `Saved Games/DCS/Missions/`. The agent picks the story; `dcsintel` handles the mechanics so nobody has to hand-edit mission Lua.
+Ask your agent for a SEAD sortie, a CAP station, or an F-16 HTS/HARM syllabus. You get briefing text, threats, and a mission file in `Saved Games/DCS/Missions/`. The agent picks the story; `dcsintel` handles the mechanics so nobody hand-edits mission Lua.
 
 The name is a joke on **DCS AI**: the agent provides the *actual intel* (situation, objective, threat picture). The builder side stays boring on purpose — same inputs, same seed, same file every time.
 
-## What you can fly
+## DCS World mission types
 
 | Type | Tasking | Red side (typical) |
 |---|---|---|
@@ -24,7 +24,7 @@ The name is a joke on **DCS AI**: the agent provides the *actual intel* (situati
 
 Random missions also take a **threat tier** (`training` through `high_threat`) and optional **scenario twists** (night, bandits already up, thin support, and similar). F-16 **training** sorties use fixed syllabi — SEAD, JDAM, Maverick, CAS, CAP, escort — with the same procedures every time but a new layout per seed.
 
-## How it fits together
+## Generate `.miz` files with AI or the CLI
 
 ```
 You  →  AI agent (dcs-mission-generator skill)
@@ -39,6 +39,7 @@ You  →  AI agent (dcs-mission-generator skill)
 
 - **[Installation](docs/INSTALL.md)** — Python, `pip install`, agent skill, config without a local DCS install
 - **[Usage](docs/USAGE.md)** — CLI commands, threat tiers, training curricula, MissionSpec reference, detection, troubleshooting
+- **[FAQ](docs/FAQ.md)** — common questions (random SEAD, Cursor/Claude, modules, seeds)
 
 Quick path:
 

@@ -5,12 +5,30 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dcsintel"
 version = "0.1.0"
-description = "AI-driven random mission generator for DCS World (SEAD, CAP, Dogfight, Strike, Escort, CAS, Intercept)"
+description = "DCS World mission generator: random and training .miz files (SEAD, CAP, strike, CAS, intercept, escort, dogfight). AI agent skill + dcsintel CLI, built on pydcs."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "DCSActualIntel contributors" }]
-keywords = ["dcs", "dcs-world", "mission-generator", "flight-sim", "miz"]
+keywords = [
+    "dcs",
+    "dcs-world",
+    "dcs-world-mission",
+    "mission-generator",
+    "flight-sim",
+    "flight-simulator",
+    "combat-flight-simulator",
+    "miz",
+    "sead",
+    "cap",
+    "cas",
+    "intercept",
+    "pydcs",
+    "training-mission",
+    "f-16",
+    "ai-agent",
+    "cursor",
+]
 
 dependencies = [
     # PyPI pydcs 0.15.0 crashes on import under Python 3.13 (PEP 667 changed

@@ -266,4 +266,4 @@ Edit JSON under `src/dcsintel/data/`. Strings must match DCS type names (pydcs `
 
 ---
 
-Back to [README](../README.md) · [Installation](INSTALL.md)
+Back to [README](../README.md) · [Installation](INSTALL.md) · [FAQ](FAQ.md)
